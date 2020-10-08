@@ -1,121 +1,33 @@
+import numpy as np
+#import codecs
+import matplotlib.pyplot as plt
+import pandas as pd
+import nltk
+nltk.download('stopwords')
+from nltk.corpus import stopwords
+from  nltk.stem import SnowballStemmer
+import re
+import spacy
+from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import random_split
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import argparse
-import pandas as pd, numpy as np, matplotlib.pyplot as plt
-from torch import optim
 
 
-from nltk.tokenize import sent_tokenize, word_tokenize
-from nltk.corpus import stopwords
-import re
-from  nltk.stem import SnowballStemmer
 
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.preprocessing.sequence import pad_sequences
+input_file = open("C:/kaggle/test.csv", "r",encoding='utf-8', errors='replace')
+train = pd.read_csv(input_file)
+#print(train.text)
 
-from torch.utils.data.dataset import random_split
-import time
+list_labels = train.sentiment
+list_labels =list_labels.map({"negative": 0, "neutral": 1, "positive": 2})
+#print(list_labels)
 
-
-# Model(수정 필요)
-class CharCNN(nn.Module):
-    def __init__(self):
-        super(CharCNN, self).__init__()
-        self.conv1 = nn.Sequential(
-            nn.Conv1d(26, 256, kernel_size=7, stride=1),
-            nn.ReLU(),
-            nn.MaxPool1d(kernel_size=3, stride=3)
-        )
-
-        self.conv2 = nn.Sequential(
-            nn.Conv1d(256, 256, kernel_size=7, stride=1),
-            nn.ReLU(),
-            nn.MaxPool1d(kernel_size=3, stride=3)
-        )
-
-        self.conv3 = nn.Sequential(
-            nn.Conv1d(256, 256, kernel_size=3, stride=1),
-            nn.ReLU()
-        )
-
-        self.conv4 = nn.Sequential(
-            nn.Conv1d(256, 256, kernel_size=3, stride=1),
-            nn.ReLU()
-        )
-
-        self.conv5 = nn.Sequential(
-            nn.Conv1d(256, 256, kernel_size=3, stride=1),
-            nn.ReLU()
-        )
-
-        self.conv6 = nn.Sequential(
-            nn.Conv1d(256, 256, kernel_size=3, stride=1),
-            nn.ReLU(),
-            nn.MaxPool1d(kernel_size=3, stride=3)
-        )
-
-        self.fc1 = nn.Sequential(
-            nn.Linear(8704, 1024),
-            nn.ReLU(),
-            nn.Dropout(p=0.5)
-        )
-
-        self.fc2 = nn.Sequential(
-            nn.Linear(1024, 1024),
-            nn.ReLU(),
-            nn.Dropout(p=0.5)
-        )
-
-        self.fc3 = nn.Linear(1024, 4)
-        self.log_softmax = nn.LogSoftmax()
-
-    def forward(self, x):
-        x = self.conv1(x)
-        x = self.conv2(x)
-        x = self.conv3(x)
-        x = self.conv4(x)
-        x = self.conv5(x)
-        x = self.conv6(x)
-
-        # collapse
-        x = x.view(x.size(0), -1)
-        # linear layer
-        x = self.fc1(x)
-        # linear layer
-        x = self.fc2(x)
-        # linear layer
-        x = self.fc3(x)
-        # output layer
-        x = self.log_softmax(x)
-
-        return x
-
-#모델 구축
-model = CharCNN()
-
-
-# =============== 셋팅 =============== #
-
-# TEXT CLENAING
 TEXT_CLEANING_RE = "@\S+|https?:\S+|http?:\S|[^A-Za-z0-9]+"
-
-#전처리
 stop_words = stopwords.words("english")
 stemmer = SnowballStemmer("english")
 
-
-train=pd.read_csv('C:/Users/VIP/Desktop/capstone/train.csv')
-test=pd.read_csv('C:/Users/VIP/Desktop/capstone/test.csv')
-
-
-y_train = train.sentiment
-y_train = y_train.map({"negative": 0, "neutral": 2, "positive": 4})
-
-
-
+# clean data
 def preprocess(text, stem=False):
     # Remove link,user and special characters
     text = re.sub(TEXT_CLEANING_RE, ' ', str(text).lower()).strip()
@@ -129,60 +41,187 @@ def preprocess(text, stem=False):
     return " ".join(tokens)
 
 train.text = train.text.apply(lambda x: preprocess(x))
+nlp = spacy.load("en_core_web_sm")
+doc = train["text"].apply(nlp)
+print(doc)
 
 
-t = Tokenizer()
-t.fit_on_texts(train.text)
-
-vocab_size = len(t.word_index) + 1
-
-
-
-X_encoded = t.texts_to_sequences(train.text) #단어를 순차적인 숫자로 바꿔줍니다.
-
-max_len=max(len(l) for l in X_encoded) #한 문장에서 최대 단어 개수를 반환
-print(max_len)
+max_sent_len=max(len(doc[i]) for i in range(0,len(doc)))
+print("length of longest sentence: ", max_sent_len)
+vector_len=len(doc[0][0].vector)
+print("length of each word vector: ", vector_len)
 
 
-X_train=pad_sequences(X_encoded, maxlen=max_len, padding='post')
-#print(X_encoded)
-#print(X_train)
+#creating the 3D array
+tweet_matrix=np.zeros((len(doc),max_sent_len,vector_len))
+print(tweet_matrix[0:2,0:3,0:4]) #test print
 
-# 모델의 state_dict 출력
-#print("Model's state_dict:")
-#for param_tensor in model.state_dict():
-#   print(param_tensor, "\t", model.state_dict()[param_tensor].size())
+for i in range(0,len(doc)):
+    for j in range(0,len(doc[i])):
+        tweet_matrix[i][j]=doc[i][j].vector
 
+#create label
 
+print(list_labels.shape[0])
+print(tweet_matrix.shape[0])
 
-N_EPOCHS = 2
-batch_size = 15
-min_valid_loss = float('inf')
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-
-criterion = torch.nn.CrossEntropyLoss().to(device)
-optimizer = torch.optim.SGD(model.parameters(), lr=4.0)
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1, gamma=0.9)
+len_for_split=[int(tweet_matrix.shape[0]/4),int(tweet_matrix.shape[0]*(3/4))]
+print(len_for_split)
+len_for_split[0]+=1
+test, train=random_split(tweet_matrix,len_for_split)
+print(test.dataset.shape)
 
 
 
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print(device)
+
+num_epochs = 25
+num_classes = 3
+learning_rate = 0.001
+batch_size=100
 
 
+class MyDataset(Dataset):
+    def __init__(self, data, target, transform=None):
+        self.data = torch.from_numpy(data).float()
+        self.target = torch.from_numpy(target).long()
+        self.transform = transform
 
-model.train()
-#for epoch in range(0, N_EPOCHS):
-#    running_loss = 0.0
-#    for i in range(0, batch_size):
-#        optimizer.zero_grad()
-#        input = torch.as_tensor(X_train[i],device=device)
-#        label = y_train[i]
-#        print(input,label,"\n")
-#        outputs = model(input)
+    def __getitem__(self, index):
+        x = self.data[index]
+        y = self.target[index]
+
+        if self.transform:
+            x = self.transform(x)
+
+        return x, y
+
+    def __len__(self):
+        return len(self.data)
+#load labels #truncating total data to keep batch size 100
+labels_train=list_labels[train.indices[0:2600]]
+labels_test=list_labels[test.indices[0:880]]
+
+#load train data
+training_data=train.dataset[train.indices[0:2600]].astype(float)
+
+#training_data=training_data.unsqueeze(1)
+
+#load test data
+test_data=test.dataset[test.indices[0:880]].astype(float)
+#test_data=test_data.unsqueeze(1)
+
+dataset_train = MyDataset(training_data, labels_train)
+dataset_test = MyDataset(test_data, labels_test)
 
 
+#loading data batchwise
+train_loader = DataLoader(dataset=dataset_train, batch_size=batch_size, shuffle=True)
+test_loader = DataLoader(dataset=dataset_test, batch_size=batch_size, shuffle=False)
 
 
+class ConvNet(nn.Module):
+    def __init__(self):
+        super(ConvNet, self).__init__()
+        self.layer13 = nn.Sequential(
+            nn.Conv2d(1, 100, kernel_size=(3, vector_len), stride=1, padding=0),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(70, 1), stride=1))
+        self.layer14 = nn.Sequential(
+            nn.Conv2d(1, 100, kernel_size=(4, vector_len), stride=1, padding=0),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(69, 1), stride=1))
+        self.layer15 = nn.Sequential(
+            nn.Conv2d(1, 100, kernel_size=(5, vector_len), stride=1, padding=0),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(68, 1), stride=1))
+        # self.layer2 = nn.Sequential(
+        # nn.Conv2d(15, 30, kernel_size=5, stride=1, padding=0),
+        # nn.ReLU(),
+        # nn.MaxPool2d(kernel_size=2, stride=2))
+        self.drop_out = nn.Dropout()
+        # concat operation
+        self.fc1 = nn.Linear(1 * 1 * 100 * 3, 30)
+        self.fc2 = nn.Linear(30, 3)
+        # self.fc3 = nn.Linear(100,3)
 
-#모델 저장
-#torch.save(model.state_dict(),'C:/Users/VIP/Desktop/dataset')
+    def forward(self, x):
+        x3 = self.layer13(x)
+        x4 = self.layer14(x)
+        x5 = self.layer15(x)
+        x3 = x3.reshape(x3.size(0), -1)
+        x4 = x4.reshape(x4.size(0), -1)
+        x5 = x5.reshape(x5.size(0), -1)
+        x3 = self.drop_out(x3)
+        x4 = self.drop_out(x4)
+        x5 = self.drop_out(x5)
+        out = torch.cat((x3, x4, x5), 1)
+        out = self.fc1(out)
+        out = self.fc2(out)
+        return (out)
+
+#creating instance of our ConvNet class
+model = ConvNet()
+model.to(device) #CNN to GPU
+
+
+# Loss and optimizer
+criterion = nn.CrossEntropyLoss()
+#CrossEntropyLoss function combines both a SoftMax activation and a cross entropy loss function in the same function
+
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+
+# Train the model
+total_step = 8100 / batch_size
+
+loss_list = []
+acc_list = []
+val_acc_list = []
+
+for epoch in range(num_epochs):
+    loss_list_element = 0
+    acc_list_element = 0
+    for i, (data_t, labels) in enumerate(train_loader):
+        data_t = data_t.unsqueeze(1)
+        data_t, labels = data_t.to(device), labels.to(device)
+
+        # Run the forward pass
+        outputs = model(data_t)
+        loss = criterion(outputs, labels)
+        loss_list_element += loss.item()
+        # print("==========forward pass finished==========")
+
+        # Backprop and perform Adam optimisation
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        # print("==========backward pass finished==========")
+
+        # Track the accuracy
+        total = labels.size(0)
+        _, predicted = torch.max(outputs.data, 1)
+        correct = (predicted == labels).sum().item()
+        acc_list_element += correct
+
+    loss_list_element = loss_list_element / np.shape(labels_train)[0]
+    acc_list_element = acc_list_element / np.shape(labels_train)[0]
+    print('Epoch [{}/{}], Loss: {:.4f}, Accuracy: {:.2f}%'
+          .format(epoch + 1, num_epochs, loss_list_element, acc_list_element * 100))
+    loss_list.append(loss_list_element)
+    acc_list.append(acc_list_element)
+
+model.eval()
+with torch.no_grad():
+    correct = 0
+    total = 0
+    for data_t, labels in test_loader:
+        data_t = data_t.unsqueeze(1)
+        data_t, labels = data_t.to(device), labels.to(device)
+
+        outputs = model(data_t)
+        _, predicted = torch.max(outputs.data, 1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
+
+    print('Test Accuracy of the model: {} %'.format((correct / total) * 100))
