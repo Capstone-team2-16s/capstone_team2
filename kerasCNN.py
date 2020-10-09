@@ -1,231 +1,120 @@
+import keras
+import numpy as np # linear algebra
 import pandas as pd
-import numpy as np
-#import codecs
-import matplotlib.pyplot as plt
-import torch
-import torch.nn as nn
-from torch.utils.data import DataLoader, Dataset
-from torch.utils.data import random_split
-
-input_file = open("C:/kaggle/socialmedia_relevant_cols.csv", "r",encoding='utf-8', errors='replace')
-
-
-# read_csv will turn CSV files into dataframes
-questions = pd.read_csv(input_file)
-questions.head()
-questions.choose_one.value_counts()
-# to clean data
-def normalise_text (text):
-    text = text.str.lower()
-    text = text.str.replace(r"\#","")
-    text = text.str.replace(r"http\S+","URL")
-    text = text.str.replace(r"@"," ")
-    text = text.str.replace(r"[^A-Za-z0-9()!?\'\`\"]", " ")
-    text = text.str.replace("\s{2,}", " ")
-    return text
-
-questions["text"]=normalise_text(questions["text"])
-
-questions.head()
+from keras.preprocessing import sequence
+import re
+import nltk
+nltk.download('stopwords')
+from nltk.corpus import stopwords
+from  nltk.stem import SnowballStemmer
+from nltk.stem.lancaster import LancasterStemmer
+from nltk.tokenize import RegexpTokenizer
+from keras.preprocessing.text import Tokenizer
+from keras.models import Sequential
+from keras.layers import Dense, Flatten, LSTM, Conv1D, MaxPooling1D, Dropout, Activation
+from keras.layers.embeddings import Embedding
+from sklearn.preprocessing import MinMaxScaler
+from matplotlib import pyplot as plt
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from pandas import DataFrame as df
 
 
-import spacy
-nlp = spacy.load("en_core_web_lg")
+TEXT_CLEANING_RE = "@\S+|https?:\S+|http?:\S|[^A-Za-z0-9]+"
+
+#전처리
+stop_words = stopwords.words("english")
+stemmer = SnowballStemmer("english")
+
+train=pd.read_csv('C:/kaggle/train.csv')
+test=pd.read_csv('C:/kaggle/test.csv')
 
 
-#apply the spaCy nlp pipeline
-doc = questions["text"].apply(nlp)
-
-#you could extract a lot more information once you pass the data through the nlp pipeline, such as POS tagging, recognising important entities, etc.
-
-max_sent_len=max(len(doc[i]) for i in range(0,len(doc)))
-print("length of longest sentence: ", max_sent_len)
-#point to be noted this is the number of tokens in the sentence, NOT words
+y_train = train.sentiment
+y_train = y_train.map({"negative": 0, "neutral": 2, "positive": 4})
 
 
-vector_len=len(doc[0][0].vector)
-print("length of each word vector: ", vector_len)
-
-
-#creating the 3D array
-tweet_matrix=np.zeros((len(doc),max_sent_len,vector_len))
-print(tweet_matrix[0:2,0:3,0:4]) #test print
-
-
-for i in range(0,len(doc)):
-    for j in range(0,len(doc[i])):
-        tweet_matrix[i][j]=doc[i][j].vector
+def preprocess(text, stem=False):
+    # Remove link,user and special characters
+    text = re.sub(TEXT_CLEANING_RE, ' ', str(text).lower()).strip()
+    tokens = []
+    for token in text.split():
+        if token not in stop_words:
+            if stem:
+                tokens.append(stemmer.stem(token))
+            else:
+                tokens.append(token)
+    return " ".join(tokens)
+train.text = train.text.apply(lambda x: preprocess(x))
+print(train.text)
+tweets = np.array(train.text)
+sentiment = np.array(y_train)
+print(sentiment)
 
 
 
-list_labels = np.array(questions["class_label"])
-print(list_labels.shape[0])
-print(tweet_matrix.shape[0])
+vocab_size = 400000
+tk = Tokenizer(num_words=vocab_size)
+#tw = tweets
+tk.fit_on_texts(tweets)
+t = tk.texts_to_sequences(tweets)
+X = np.array(sequence.pad_sequences(t, maxlen=26, padding='post'))
+y = sentiment
 
-#for GPU - CUDA
-
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-# Assuming that we are on a CUDA machine, this should print a CUDA device:
-
-print(device)
-
-len_for_split=[int(tweet_matrix.shape[0]/4),int(tweet_matrix.shape[0]*(3/4))]
-print(len_for_split)
-
-test, train=random_split(tweet_matrix,len_for_split)
-
-test.dataset.shape
-
-# Hyperparameters
-num_epochs = 25
-num_classes = 3
-learning_rate = 0.001
-batch_size=100
+print(X.shape, y.shape)
 
 
-class MyDataset(Dataset):
-    def __init__(self, data, target, transform=None):
-        self.data = torch.from_numpy(data).float()
-        self.target = torch.from_numpy(target).long()
-        self.transform = transform
+#Make Model
+model = Sequential()
 
-    def __getitem__(self, index):
-        x = self.data[index]
-        y = self.target[index]
+model.add(Embedding(vocab_size, 32, input_length=26))
+model.add(Conv1D(filters=128, kernel_size=5, padding='same', activation='relu'))
+model.add(MaxPooling1D(pool_size=2))
+model.add(Dropout(0.2))
+model.add(Conv1D(filters=64, kernel_size=6, padding='same', activation='relu'))
+model.add(MaxPooling1D(pool_size=2))
+model.add(Dropout(0.2))
+model.add(Conv1D(filters=32, kernel_size=7, padding='same', activation='relu'))
+model.add(MaxPooling1D(pool_size=2))
+model.add(Dropout(0.2))
+model.add(Conv1D(filters=32, kernel_size=8, padding='same', activation='relu'))
+model.add(MaxPooling1D(pool_size=2))
+model.add(Dropout(0.2))
+model.add(Flatten())
+model.add(Dense(1, input_shape=(1,)))
+model.compile('SGD','mse',metrics=['accuracy'])
+model.summary()
 
-        if self.transform:
-            x = self.transform(x)
-
-        return x, y
-
-    def __len__(self):
-        return len(self.data)
-
-
-# load labels #truncating total data to keep batch size 100
-labels_train = list_labels[train.indices[0:8100]]
-labels_test = list_labels[test.indices[0:2700]]
-
-# load train data
-training_data = train.dataset[train.indices[0:8100]].astype(float)
-# training_data=training_data.unsqueeze(1)
-
-# load test data
-test_data = test.dataset[test.indices[0:2700]].astype(float)
-# test_data=test_data.unsqueeze(1)
-
-dataset_train = MyDataset(training_data, labels_train)
-dataset_test = MyDataset(test_data, labels_test)
-
-# loading data batchwise
-train_loader = DataLoader(dataset=dataset_train, batch_size=batch_size, shuffle=True)
-test_loader = DataLoader(dataset=dataset_test, batch_size=batch_size, shuffle=False)
+model.fit(X, y, epochs=10, verbose=1)
+model.save('model.h5')
 
 
-class ConvNet(nn.Module):
-    def __init__(self):
-        super(ConvNet, self).__init__()
-        self.layer13 = nn.Sequential(
-            nn.Conv2d(1, 100, kernel_size=(3, vector_len), stride=1, padding=0),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(70, 1), stride=1))
-        self.layer14 = nn.Sequential(
-            nn.Conv2d(1, 100, kernel_size=(4, vector_len), stride=1, padding=0),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(69, 1), stride=1))
-        self.layer15 = nn.Sequential(
-            nn.Conv2d(1, 100, kernel_size=(5, vector_len), stride=1, padding=0),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(68, 1), stride=1))
-        # self.layer2 = nn.Sequential(
-        # nn.Conv2d(15, 30, kernel_size=5, stride=1, padding=0),
-        # nn.ReLU(),
-        # nn.MaxPool2d(kernel_size=2, stride=2))
-        self.drop_out = nn.Dropout()
-        # concat operation
-        self.fc1 = nn.Linear(1 * 1 * 100 * 3, 30)
-        self.fc2 = nn.Linear(30, 3)
-        # self.fc3 = nn.Linear(100,3)
-
-    def forward(self, x):
-        x3 = self.layer13(x)
-        x4 = self.layer14(x)
-        x5 = self.layer15(x)
-        x3 = x3.reshape(x3.size(0), -1)
-        x4 = x4.reshape(x4.size(0), -1)
-        x5 = x5.reshape(x5.size(0), -1)
-        x3 = self.drop_out(x3)
-        x4 = self.drop_out(x4)
-        x5 = self.drop_out(x5)
-        out = torch.cat((x3, x4, x5), 1)
-        out = self.fc1(out)
-        out = self.fc2(out)
-        return (out)
 
 
-# creating instance of our ConvNet class
-model = ConvNet()
-model.to(device)  # CNN to GPU
+#prediction
+samples=pd.read_csv('C:/kaggle/sample.txt', sep = "\n", engine='python', encoding = "utf8",header=None)
+samples[0] = samples[0].apply(lambda x: preprocess(x))
 
-# Loss and optimizer
-criterion = nn.CrossEntropyLoss()
-# CrossEntropyLoss function combines both a SoftMax activation and a cross entropy loss function in the same function
+y_encoded = tk.texts_to_sequences(samples[0]) #단어를 순차적인 숫자로 바꿔줍니다.
+y_test=pad_sequences(y_encoded, maxlen=26, padding='post')
 
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+y_predict=model.predict(y_test)
+def sentiment(x):
+    if x <1:
+        return "negative"
+    elif x <3:
+        return "neutral"
+    else:
+        return "positive"
 
-# Train the model
-total_step = 8100 / batch_size
+y=list(map(sentiment, y_predict))
+samples=pd.read_csv('C:/kaggle/sample.txt', sep = "\n", engine='python', encoding = "utf8",header=None)
 
-loss_list = []
-acc_list = []
-val_acc_list = []
 
-for epoch in range(num_epochs):
-    loss_list_element = 0
-    acc_list_element = 0
-    for i, (data_t, labels) in enumerate(train_loader):
-        data_t = data_t.unsqueeze(1)
-        data_t, labels = data_t.to(device), labels.to(device)
+# In[70]:
 
-        # Run the forward pass
-        outputs = model(data_t)
-        loss = criterion(outputs, labels)
-        loss_list_element += loss.item()
-        # print("==========forward pass finished==========")
 
-        # Backprop and perform Adam optimisation
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        # print("==========backward pass finished==========")
-
-        # Track the accuracy
-        total = labels.size(0)
-        _, predicted = torch.max(outputs.data, 1)
-        correct = (predicted == labels).sum().item()
-        acc_list_element += correct
-
-    loss_list_element = loss_list_element / np.shape(labels_train)[0]
-    acc_list_element = acc_list_element / np.shape(labels_train)[0]
-    print('Epoch [{}/{}], Loss: {:.4f}, Accuracy: {:.2f}%'
-          .format(epoch + 1, num_epochs, loss_list_element, acc_list_element * 100))
-    loss_list.append(loss_list_element)
-    acc_list.append(acc_list_element)
-
-    with torch.no_grad():
-        correct = 0
-        total = 0
-        for data_t, labels in test_loader:
-            data_t = data_t.unsqueeze(1)
-            data_t, labels = data_t.to(device), labels.to(device)
-
-            outputs = model(data_t)
-            _, predicted = torch.max(outputs.data, 1)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
-        val_acc_list.append(correct / total)
-
-    print('Test Accuracy of the model: {} %'.format((correct / total) * 100))
-    print()
-
+#df1 = df(data={'감정':y_test,'문장':samples[0]})
+df1 = df(samples[0])
+df2 = df(y)
+result3 = pd.concat([df1,df2],axis=1)
+print(result3)
