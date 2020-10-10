@@ -1,0 +1,1160 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "name": "text-CNN.ipynb",
+      "provenance": [],
+      "collapsed_sections": [],
+      "authorship_tag": "ABX9TyOAiqhZzLqAXKSNHTfbEcZv",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/uknowsj/Capstone_team2/blob/master/text_CNN.ipynb\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "oVtGh-4bDpIn"
+      },
+      "source": [
+        "# Import Library"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "v0AJaVyPCRys",
+        "outputId": "bc0eb2a8-13f0-446f-8c04-b387d7976a6d",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 53
+        }
+      },
+      "source": [
+        "import pandas as pd\n",
+        "from pandas import DataFrame as df\n",
+        "\n",
+        "from tensorflow.keras.preprocessing.text import Tokenizer\n",
+        "from tensorflow.keras.preprocessing.sequence import pad_sequences\n",
+        "\n",
+        "# nltk\n",
+        "import nltk\n",
+        "nltk.download('stopwords')\n",
+        "from nltk.corpus import stopwords\n",
+        "from  nltk.stem import SnowballStemmer\n",
+        "\n",
+        "# Word2vec\n",
+        "import gensim\n",
+        "from gensim.models import Word2Vec #@\n",
+        "from gensim.utils import simple_preprocess #@\n",
+        "from gensim.models.keyedvectors import KeyedVectors #@\n",
+        "\n",
+        "#Keras\n",
+        "from keras.models import Sequential\n",
+        "from keras.layers import Dense, Flatten, LSTM, Conv1D, MaxPooling1D, Dropout, Activation\n",
+        "from keras.layers.embeddings import Embedding\n",
+        "from keras.preprocessing.sequence import pad_sequences\n",
+        "from keras.models import load_model #모델 저장\n",
+        "\n",
+        "#sklearn\n",
+        "from sklearn.model_selection import train_test_split\n",
+        "from sklearn.preprocessing import LabelEncoder\n",
+        "\n",
+        "# Utility\n",
+        "import re\n",
+        "import numpy as np\n",
+        "import time #수행시간 측정\n",
+        "from google.colab import files #colab에 모델 save,load"
+      ],
+      "execution_count": 1,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "[nltk_data] Downloading package stopwords to /root/nltk_data...\n",
+            "[nltk_data]   Unzipping corpora/stopwords.zip.\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "2iooLul4Db5c"
+      },
+      "source": [
+        "# =============== 셋팅 =============== #\n",
+        "\n",
+        "# DATASET\n",
+        "DATASET_COLUMNS = [\"target\", \"ids\", \"date\", \"flag\", \"user\", \"text\"]\n",
+        "DATASET_ENCODING = \"ISO-8859-1\"\n",
+        "TRAIN_SIZE = 0.8\n",
+        "\n",
+        "# TEXT CLENAING\n",
+        "TEXT_CLEANING_RE = \"@\\S+|https?:\\S+|http?:\\S|[^A-Za-z0-9]+\"\n",
+        "\n",
+        "#전처리\n",
+        "stop_words = stopwords.words(\"english\")\n",
+        "stemmer = SnowballStemmer(\"english\")\n",
+        "\n",
+        "# KERAS\n",
+        "SEQUENCE_LENGTH = 300\n",
+        "EPOCHS = 8\n",
+        "BATCH_SIZE = 1024\n",
+        "\n",
+        "# SENTIMENT\n",
+        "POSITIVE = \"POSITIVE\"\n",
+        "NEGATIVE = \"NEGATIVE\"\n",
+        "NEUTRAL = \"NEUTRAL\"\n",
+        "SENTIMENT_THRESHOLDS = (0.4, 0.7)"
+      ],
+      "execution_count": 24,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "52gAw7EyDfYe",
+        "outputId": "8331835c-14be-47f9-c350-c98046eaa728",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 35
+        }
+      },
+      "source": [
+        "#Colab에 연결해서 사용하기\n",
+        "from google.colab import drive\n",
+        "drive.mount('/content/gdrive') #,force_remount=True\n",
+        "my_path='/content/gdrive/My Drive/Colab Notebooks/'"
+      ],
+      "execution_count": 3,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "Mounted at /content/gdrive\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "JK6hPwoBDnPh"
+      },
+      "source": [
+        "# Load Data"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "Lni-Xv--DlvX",
+        "outputId": "82079731-311a-400c-c120-1ad3b5b6101d",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 35
+        }
+      },
+      "source": [
+        "#학습데이터 로드\n",
+        "dataset=pd.read_csv(my_path+'train.csv',encoding = DATASET_ENCODING, names=DATASET_COLUMNS)\n",
+        "print(dataset.shape) #1600000,6"
+      ],
+      "execution_count": 4,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "(1600000, 6)\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "Gh5Mzm8MD63V",
+        "outputId": "193a799e-0cf9-45bd-94a5-b6106bb7d8e4",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 204
+        }
+      },
+      "source": [
+        "dataset.head() # negative:0, positive:4"
+      ],
+      "execution_count": 5,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>target</th>\n",
+              "      <th>ids</th>\n",
+              "      <th>date</th>\n",
+              "      <th>flag</th>\n",
+              "      <th>user</th>\n",
+              "      <th>text</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>0</td>\n",
+              "      <td>1467810369</td>\n",
+              "      <td>Mon Apr 06 22:19:45 PDT 2009</td>\n",
+              "      <td>NO_QUERY</td>\n",
+              "      <td>_TheSpecialOne_</td>\n",
+              "      <td>@switchfoot http://twitpic.com/2y1zl - Awww, t...</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>0</td>\n",
+              "      <td>1467810672</td>\n",
+              "      <td>Mon Apr 06 22:19:49 PDT 2009</td>\n",
+              "      <td>NO_QUERY</td>\n",
+              "      <td>scotthamilton</td>\n",
+              "      <td>is upset that he can't update his Facebook by ...</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>0</td>\n",
+              "      <td>1467810917</td>\n",
+              "      <td>Mon Apr 06 22:19:53 PDT 2009</td>\n",
+              "      <td>NO_QUERY</td>\n",
+              "      <td>mattycus</td>\n",
+              "      <td>@Kenichan I dived many times for the ball. Man...</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>0</td>\n",
+              "      <td>1467811184</td>\n",
+              "      <td>Mon Apr 06 22:19:57 PDT 2009</td>\n",
+              "      <td>NO_QUERY</td>\n",
+              "      <td>ElleCTF</td>\n",
+              "      <td>my whole body feels itchy and like its on fire</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>0</td>\n",
+              "      <td>1467811193</td>\n",
+              "      <td>Mon Apr 06 22:19:57 PDT 2009</td>\n",
+              "      <td>NO_QUERY</td>\n",
+              "      <td>Karoli</td>\n",
+              "      <td>@nationwideclass no, it's not behaving at all....</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "   target  ...                                               text\n",
+              "0       0  ...  @switchfoot http://twitpic.com/2y1zl - Awww, t...\n",
+              "1       0  ...  is upset that he can't update his Facebook by ...\n",
+              "2       0  ...  @Kenichan I dived many times for the ball. Man...\n",
+              "3       0  ...    my whole body feels itchy and like its on fire \n",
+              "4       0  ...  @nationwideclass no, it's not behaving at all....\n",
+              "\n",
+              "[5 rows x 6 columns]"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 5
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "he__CcCXEey1"
+      },
+      "source": [
+        "디코더 생성"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "8QHE3iODEF3G"
+      },
+      "source": [
+        "decode_map = {0: NEGATIVE, 2: NEUTRAL, 4: POSITIVE} #숫자 => 분류 문장\n",
+        "def decode_sentiment(label):\n",
+        "    return decode_map[int(label)]"
+      ],
+      "execution_count": 6,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "RRpwwlNKEHIl",
+        "outputId": "6e31032b-7da1-4603-d8d5-1120519003be",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 53
+        }
+      },
+      "source": [
+        "%%time\n",
+        "dataset.target = dataset.target.apply(lambda x: decode_sentiment(x))"
+      ],
+      "execution_count": 7,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "CPU times: user 501 ms, sys: 1.2 ms, total: 502 ms\n",
+            "Wall time: 504 ms\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "QqtawW_BETlh"
+      },
+      "source": [
+        "# Pre-Processing "
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "8Qf3QxwhEoPe"
+      },
+      "source": [
+        "클리닝 텍스트 ***이 부분 수민님 코드로 수정해주시면 됩니다.***"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "dhlDfCgKEgoe"
+      },
+      "source": [
+        "#학습 데이터 텍스트 전처리\n",
+        "def preprocess(text, stem=False):\n",
+        "    # Remove link,user and special characters\n",
+        "    text = re.sub(TEXT_CLEANING_RE, ' ', str(text).lower()).strip()\n",
+        "    tokens = []\n",
+        "    for token in text.split():\n",
+        "        if token not in stop_words:\n",
+        "            if stem:\n",
+        "                tokens.append(stemmer.stem(token))\n",
+        "            else:\n",
+        "                tokens.append(token)\n",
+        "    return \" \".join(tokens)"
+      ],
+      "execution_count": 8,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "1AzW9V9zESDN"
+      },
+      "source": [
+        "dataset.text = dataset.text.apply(lambda x: preprocess(x)) #전처리 진행"
+      ],
+      "execution_count": 9,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "5SJbxU4_E0_-"
+      },
+      "source": [
+        "학습 데이터 나누기 "
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "w6p1j_FYEwmu",
+        "outputId": "629fb81e-4511-43a5-85a7-b0cdee12fb47",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 53
+        }
+      },
+      "source": [
+        "train, test = train_test_split(dataset, test_size=1-TRAIN_SIZE, random_state=42)\n",
+        "print(\"TRAIN size:\", len(train))\n",
+        "print(\"TEST size:\", len(test))"
+      ],
+      "execution_count": 10,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "TRAIN size: 1280000\n",
+            "TEST size: 320000\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "2rUn2oroE5nW"
+      },
+      "source": [
+        "documents = [_text.split() for _text in train.text] #list, 1280000*50"
+      ],
+      "execution_count": 11,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "Fm_4qfssE99e"
+      },
+      "source": [
+        "vocab_size = 400000\n",
+        "tk = Tokenizer(num_words=vocab_size)\n",
+        "tk.fit_on_texts(train.text) \n",
+        "x_train = tk.texts_to_sequences(train.text)\n",
+        "x_test = tk.texts_to_sequences(test.text)"
+      ],
+      "execution_count": 12,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "TiY0WCuSFDpd",
+        "outputId": "c4801606-a015-4a48-c69b-59a10a720ca3",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 35
+        }
+      },
+      "source": [
+        "labels = train.target.unique().tolist() #POSITIVE NEUTRAL NEGATIVE\n",
+        "labels.append(NEUTRAL)\n",
+        "print(labels)\n",
+        "\n",
+        "encoder = LabelEncoder() #문장 -> 숫자 자동으로\n",
+        "encoder.fit(train.target.tolist())\n",
+        "\n",
+        "y_train = encoder.transform(train.target.tolist())\n",
+        "y_test = encoder.transform(test.target.tolist())\n",
+        "\n",
+        "y_train = y_train.reshape(-1,1) #1열로 자동으로 만들어줍니다.\n",
+        "y_test = y_test.reshape(-1,1)"
+      ],
+      "execution_count": 13,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "['POSITIVE', 'NEGATIVE', 'NEUTRAL']\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "E59tnUScFqpN"
+      },
+      "source": [
+        "# Build Model"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "Ya4z4LS8FfQ9",
+        "outputId": "0eb86f3c-ae85-4bdd-a932-8d2dccd350dd",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 35
+        }
+      },
+      "source": [
+        "max_len=max(len(l) for l in x_train) #한 문장에서 최대 단어 개수를 반환 #max_len=50"
+      ],
+      "execution_count": 14,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "50\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "P0XIqKeIFlS3",
+        "outputId": "8fd1b939-e680-4665-d6b8-589522b32cb3",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 35
+        }
+      },
+      "source": [
+        "X_train = np.array(pad_sequences(x_train, maxlen=max_len, padding='post')) #max_len만큼 padding 값 설정 \n",
+        "print(X_train.shape, y_train.shape)"
+      ],
+      "execution_count": 15,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "(1280000, 50) (1280000, 1)\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "LtsqvPceHTPn"
+      },
+      "source": [
+        "text-CNN 모델 빌드 ***3시간 정도 걸립니다. 결과만 보려면 아래에서 로드해서 보세요***"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "BlaQMTDiHS1C"
+      },
+      "source": [
+        "#Make Model\n",
+        "model = Sequential()\n",
+        "\n",
+        "model.add(Embedding(vocab_size, 32, input_length=max_len))\n",
+        "model.add(Conv1D(filters=128, kernel_size=5, padding='same', activation='relu'))\n",
+        "model.add(MaxPooling1D(pool_size=2))\n",
+        "model.add(Dropout(0.2))\n",
+        "model.add(Conv1D(filters=64, kernel_size=6, padding='same', activation='relu'))\n",
+        "model.add(MaxPooling1D(pool_size=2))\n",
+        "model.add(Dropout(0.2))\n",
+        "model.add(Conv1D(filters=32, kernel_size=7, padding='same', activation='relu'))\n",
+        "model.add(MaxPooling1D(pool_size=2))\n",
+        "model.add(Dropout(0.2))\n",
+        "model.add(Conv1D(filters=32, kernel_size=8, padding='same', activation='relu'))\n",
+        "model.add(MaxPooling1D(pool_size=2))\n",
+        "model.add(Dropout(0.2))\n",
+        "model.add(Flatten())\n",
+        "model.add(Dense(1, input_shape=(1,)))\n",
+        "model.compile('SGD','mse',metrics=['accuracy'])\n",
+        "model.summary()\n",
+        "\n",
+        "model.fit(X, y, epochs=10, verbose=1)\n",
+        "model.save('model.h5')"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "EVLNnwaQGcqY"
+      },
+      "source": [
+        "text-CNN 모델 로드"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "QMtBkljkFhK2"
+      },
+      "source": [
+        "model = load_model(my_path+'text-CNN.h5')"
+      ],
+      "execution_count": 16,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "OcNH3SqYIwRB"
+      },
+      "source": [
+        "def decode_sentiment(score, include_neutral=True):\n",
+        "    if include_neutral:        \n",
+        "        label = NEUTRAL\n",
+        "        if score <= SENTIMENT_THRESHOLDS[0]:\n",
+        "            label = NEGATIVE\n",
+        "        elif score >= SENTIMENT_THRESHOLDS[1]:\n",
+        "            label = POSITIVE\n",
+        "\n",
+        "        return label\n",
+        "    else:\n",
+        "        return NEGATIVE if score < 0.5 else POSITIVE"
+      ],
+      "execution_count": 21,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "XLC_MSjVHq--"
+      },
+      "source": [
+        "def predict(ex_text, include_neutral=True):\n",
+        "    start_at = time.time()\n",
+        "    x_encoded = tk.texts_to_sequences([ex_text])\n",
+        "    res_test=np.array(pad_sequences(x_encoded, maxlen=max_len, padding='post'))\n",
+        "    # Predict\n",
+        "    score = model.predict([res_test])\n",
+        "    # Decode sentiment\n",
+        "    label = decode_sentiment(score, include_neutral=include_neutral)\n",
+        "    \n",
+        "    return {\"label\": label, \"score\": float(score),\n",
+        "       \"elapsed_time\": time.time()-start_at}"
+      ],
+      "execution_count": 22,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "nm2nRzjnHuh_",
+        "outputId": "85ee97e0-a1b7-40ed-da28-0dcd4b3f3ff0",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 71
+        }
+      },
+      "source": [
+        "predict(\"That's so sad\")"
+      ],
+      "execution_count": 25,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "{'elapsed_time': 0.042258501052856445,\n",
+              " 'label': 'NEGATIVE',\n",
+              " 'score': 0.05291527509689331}"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 25
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "XeTF_kX6JVqH"
+      },
+      "source": [
+        "# 트위터 데이터로 예측해보기"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "4igM5EJLJa7f"
+      },
+      "source": [
+        "#트위터 샘플문장\n",
+        "samples=pd.read_csv(my_path+'/sample.txt', sep = \"\\n\",encoding = \"utf8\",header=None)"
+      ],
+      "execution_count": 26,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "MRqLKZzeMZW8"
+      },
+      "source": [
+        "df_res = pd.DataFrame({'text':[],\n",
+        "                   'label':[],\n",
+        "                   'score':[],\n",
+        "                  'elapsed_time':[]}) #결과 dataframe 생성"
+      ],
+      "execution_count": 103,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "frWmvuIwNY-_",
+        "outputId": "f0c7da81-efe6-4abe-c3d0-04d66d9d7f59",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 1000
+        }
+      },
+      "source": [
+        "for col,item in samples.iterrows():\n",
+        "  res=predict(item[0])\n",
+        "  df_res.loc[col]=[ item, res['label'], res['score'],res['elapsed_time'] ]\n",
+        "\n",
+        "df_res"
+      ],
+      "execution_count": 106,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>text</th>\n",
+              "      <th>label</th>\n",
+              "      <th>score</th>\n",
+              "      <th>elapsed_time</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>0    You are so great.\n",
+              "Name: 0, dtype: object</td>\n",
+              "      <td>POSITIVE</td>\n",
+              "      <td>0.848741</td>\n",
+              "      <td>0.041311</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>0    I’m gonna stop tweeting coz\n",
+              "Name: 1, dtyp...</td>\n",
+              "      <td>NEUTRAL</td>\n",
+              "      <td>0.489361</td>\n",
+              "      <td>0.029971</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>0    If you’re a massive fan of someone and th...</td>\n",
+              "      <td>POSITIVE</td>\n",
+              "      <td>0.774252</td>\n",
+              "      <td>0.031280</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>0    Imagine if I was actually like that hahah...</td>\n",
+              "      <td>POSITIVE</td>\n",
+              "      <td>0.849568</td>\n",
+              "      <td>0.035429</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>0    I just can’t get over how good this song ...</td>\n",
+              "      <td>NEUTRAL</td>\n",
+              "      <td>0.685502</td>\n",
+              "      <td>0.027289</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>5</th>\n",
+              "      <td>0    NEXT YEARS CALENDAR ? https://t.co/eW8jPa...</td>\n",
+              "      <td>POSITIVE</td>\n",
+              "      <td>0.810429</td>\n",
+              "      <td>0.027617</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>6</th>\n",
+              "      <td>0    Let go of your story line. Try something ...</td>\n",
+              "      <td>POSITIVE</td>\n",
+              "      <td>0.761244</td>\n",
+              "      <td>0.027318</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>7</th>\n",
+              "      <td>0    WAHOOOOOOOOOOOOOO https://t.co/JvkXq5aYUF...</td>\n",
+              "      <td>POSITIVE</td>\n",
+              "      <td>0.738181</td>\n",
+              "      <td>0.026969</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>8</th>\n",
+              "      <td>0    OI OIIIIIIIIIIII @BBCR1 https://t.co/5gvI...</td>\n",
+              "      <td>NEUTRAL</td>\n",
+              "      <td>0.662776</td>\n",
+              "      <td>0.030460</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>9</th>\n",
+              "      <td>0    YESSSSSSSS HAHHAHAHA https://t.co/zqwDrCB...</td>\n",
+              "      <td>POSITIVE</td>\n",
+              "      <td>0.826386</td>\n",
+              "      <td>0.027157</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>10</th>\n",
+              "      <td>0    Brain farts. I like that 🤣🤣 https://t.co/...</td>\n",
+              "      <td>NEGATIVE</td>\n",
+              "      <td>0.335431</td>\n",
+              "      <td>0.027677</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>11</th>\n",
+              "      <td>0    Do you wanna know if we listen alike? Che...</td>\n",
+              "      <td>POSITIVE</td>\n",
+              "      <td>0.743572</td>\n",
+              "      <td>0.026556</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>12</th>\n",
+              "      <td>0    ❤️ @charliemackesy https://t.co/iLqJOGdtU...</td>\n",
+              "      <td>POSITIVE</td>\n",
+              "      <td>0.738181</td>\n",
+              "      <td>0.031988</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>13</th>\n",
+              "      <td>0    LISTEN! https://t.co/RDi2srZYIY\n",
+              "Name: 13,...</td>\n",
+              "      <td>POSITIVE</td>\n",
+              "      <td>0.807752</td>\n",
+              "      <td>0.027653</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>14</th>\n",
+              "      <td>0    A local barber in my neighbourhood was ar...</td>\n",
+              "      <td>NEGATIVE</td>\n",
+              "      <td>0.234356</td>\n",
+              "      <td>0.027842</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>15</th>\n",
+              "      <td>0    Unbelievable. I’d been his customer for y...</td>\n",
+              "      <td>NEUTRAL</td>\n",
+              "      <td>0.567308</td>\n",
+              "      <td>0.027482</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>16</th>\n",
+              "      <td>0    ❤️❤️❤️❤️❤️❤️❤️ https://t.co/saSp789Xk0\n",
+              "Na...</td>\n",
+              "      <td>POSITIVE</td>\n",
+              "      <td>0.738181</td>\n",
+              "      <td>0.028456</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>17</th>\n",
+              "      <td>0    I got fired from my job at the bank today...</td>\n",
+              "      <td>NEGATIVE</td>\n",
+              "      <td>0.170351</td>\n",
+              "      <td>0.030684</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>18</th>\n",
+              "      <td>0    An old lady asked me to check her balance...</td>\n",
+              "      <td>NEUTRAL</td>\n",
+              "      <td>0.440291</td>\n",
+              "      <td>0.032580</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>19</th>\n",
+              "      <td>0    Want more jokes ?\n",
+              "Name: 19, dtype: object</td>\n",
+              "      <td>NEGATIVE</td>\n",
+              "      <td>0.186067</td>\n",
+              "      <td>0.029088</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>20</th>\n",
+              "      <td>0    I asked my wife if I was the only one she...</td>\n",
+              "      <td>NEUTRAL</td>\n",
+              "      <td>0.694302</td>\n",
+              "      <td>0.027843</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>21</th>\n",
+              "      <td>0    She said yes, all the others had been nin...</td>\n",
+              "      <td>POSITIVE</td>\n",
+              "      <td>0.719758</td>\n",
+              "      <td>0.031836</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>22</th>\n",
+              "      <td>0    Next joke in 10 minutes\n",
+              "Name: 22, dtype: ...</td>\n",
+              "      <td>NEUTRAL</td>\n",
+              "      <td>0.498560</td>\n",
+              "      <td>0.026983</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>23</th>\n",
+              "      <td>0    The man who invented Velcro died.\n",
+              "Name: 2...</td>\n",
+              "      <td>NEGATIVE</td>\n",
+              "      <td>0.081074</td>\n",
+              "      <td>0.027446</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>24</th>\n",
+              "      <td>0    RIP\n",
+              "Name: 24, dtype: object</td>\n",
+              "      <td>NEGATIVE</td>\n",
+              "      <td>0.053629</td>\n",
+              "      <td>0.027205</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>25</th>\n",
+              "      <td>0    WHAT AN INCREDIBLE WOMAN! https://t.co/yf...</td>\n",
+              "      <td>POSITIVE</td>\n",
+              "      <td>0.871753</td>\n",
+              "      <td>0.027926</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>26</th>\n",
+              "      <td>0    I went to a psychic and knocked on her fr...</td>\n",
+              "      <td>NEUTRAL</td>\n",
+              "      <td>0.487977</td>\n",
+              "      <td>0.027071</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>27</th>\n",
+              "      <td>0    She yelled “who is it?”. \n",
+              "Name: 27, dtype...</td>\n",
+              "      <td>NEGATIVE</td>\n",
+              "      <td>0.128017</td>\n",
+              "      <td>0.027106</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>28</th>\n",
+              "      <td>0    So I left.\n",
+              "Name: 28, dtype: object</td>\n",
+              "      <td>NEGATIVE</td>\n",
+              "      <td>0.168176</td>\n",
+              "      <td>0.027655</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>29</th>\n",
+              "      <td>0    Working out is like a drug to me.\n",
+              "Name: 2...</td>\n",
+              "      <td>NEUTRAL</td>\n",
+              "      <td>0.456073</td>\n",
+              "      <td>0.027364</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>30</th>\n",
+              "      <td>0    I don’t do drugs.\n",
+              "Name: 30, dtype: object</td>\n",
+              "      <td>NEUTRAL</td>\n",
+              "      <td>0.523887</td>\n",
+              "      <td>0.031796</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>31</th>\n",
+              "      <td>0    YEAAHAHHHAHAHHAHAHAHAHAHA https://t.co/Ds...</td>\n",
+              "      <td>POSITIVE</td>\n",
+              "      <td>0.738181</td>\n",
+              "      <td>0.026393</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>32</th>\n",
+              "      <td>0    My boss hates it when I shorten his name ...</td>\n",
+              "      <td>NEGATIVE</td>\n",
+              "      <td>0.233983</td>\n",
+              "      <td>0.026159</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>33</th>\n",
+              "      <td>0    Especially when his name is Steve.\n",
+              "Name: ...</td>\n",
+              "      <td>POSITIVE</td>\n",
+              "      <td>0.823495</td>\n",
+              "      <td>0.026179</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>34</th>\n",
+              "      <td>0    You’ll have another one in half hour I go...</td>\n",
+              "      <td>NEUTRAL</td>\n",
+              "      <td>0.464853</td>\n",
+              "      <td>0.026654</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>35</th>\n",
+              "      <td>0    I met a girl the other night at a club wh...</td>\n",
+              "      <td>POSITIVE</td>\n",
+              "      <td>0.833642</td>\n",
+              "      <td>0.027030</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>36</th>\n",
+              "      <td>0    When we got outside, she ran a 40 metre d...</td>\n",
+              "      <td>NEUTRAL</td>\n",
+              "      <td>0.403169</td>\n",
+              "      <td>0.027144</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>37</th>\n",
+              "      <td>0    Just got a new joke book\n",
+              "Name: 37, dtype:...</td>\n",
+              "      <td>POSITIVE</td>\n",
+              "      <td>0.846957</td>\n",
+              "      <td>0.027475</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>38</th>\n",
+              "      <td>0    Here we go\n",
+              "Name: 38, dtype: object</td>\n",
+              "      <td>NEUTRAL</td>\n",
+              "      <td>0.522426</td>\n",
+              "      <td>0.027472</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>39</th>\n",
+              "      <td>0    Today I’m gonna be writing a lot of jokes...</td>\n",
+              "      <td>POSITIVE</td>\n",
+              "      <td>0.835386</td>\n",
+              "      <td>0.031542</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>40</th>\n",
+              "      <td>0    Your life isn’t yours if you constantly c...</td>\n",
+              "      <td>POSITIVE</td>\n",
+              "      <td>0.721658</td>\n",
+              "      <td>0.027051</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>41</th>\n",
+              "      <td>0    OIIIIIIIIIIIIIIIIIIIII 🔥🔥🔥🔥🔥 https://t.co...</td>\n",
+              "      <td>POSITIVE</td>\n",
+              "      <td>0.738181</td>\n",
+              "      <td>0.027495</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "                                                 text  ... elapsed_time\n",
+              "0       0    You are so great.\n",
+              "Name: 0, dtype: object  ...     0.041311\n",
+              "1   0    I’m gonna stop tweeting coz\n",
+              "Name: 1, dtyp...  ...     0.029971\n",
+              "2   0    If you’re a massive fan of someone and th...  ...     0.031280\n",
+              "3   0    Imagine if I was actually like that hahah...  ...     0.035429\n",
+              "4   0    I just can’t get over how good this song ...  ...     0.027289\n",
+              "5   0    NEXT YEARS CALENDAR ? https://t.co/eW8jPa...  ...     0.027617\n",
+              "6   0    Let go of your story line. Try something ...  ...     0.027318\n",
+              "7   0    WAHOOOOOOOOOOOOOO https://t.co/JvkXq5aYUF...  ...     0.026969\n",
+              "8   0    OI OIIIIIIIIIIII @BBCR1 https://t.co/5gvI...  ...     0.030460\n",
+              "9   0    YESSSSSSSS HAHHAHAHA https://t.co/zqwDrCB...  ...     0.027157\n",
+              "10  0    Brain farts. I like that 🤣🤣 https://t.co/...  ...     0.027677\n",
+              "11  0    Do you wanna know if we listen alike? Che...  ...     0.026556\n",
+              "12  0    ❤️ @charliemackesy https://t.co/iLqJOGdtU...  ...     0.031988\n",
+              "13  0    LISTEN! https://t.co/RDi2srZYIY\n",
+              "Name: 13,...  ...     0.027653\n",
+              "14  0    A local barber in my neighbourhood was ar...  ...     0.027842\n",
+              "15  0    Unbelievable. I’d been his customer for y...  ...     0.027482\n",
+              "16  0    ❤️❤️❤️❤️❤️❤️❤️ https://t.co/saSp789Xk0\n",
+              "Na...  ...     0.028456\n",
+              "17  0    I got fired from my job at the bank today...  ...     0.030684\n",
+              "18  0    An old lady asked me to check her balance...  ...     0.032580\n",
+              "19     0    Want more jokes ?\n",
+              "Name: 19, dtype: object  ...     0.029088\n",
+              "20  0    I asked my wife if I was the only one she...  ...     0.027843\n",
+              "21  0    She said yes, all the others had been nin...  ...     0.031836\n",
+              "22  0    Next joke in 10 minutes\n",
+              "Name: 22, dtype: ...  ...     0.026983\n",
+              "23  0    The man who invented Velcro died.\n",
+              "Name: 2...  ...     0.027446\n",
+              "24                   0    RIP\n",
+              "Name: 24, dtype: object  ...     0.027205\n",
+              "25  0    WHAT AN INCREDIBLE WOMAN! https://t.co/yf...  ...     0.027926\n",
+              "26  0    I went to a psychic and knocked on her fr...  ...     0.027071\n",
+              "27  0    She yelled “who is it?”. \n",
+              "Name: 27, dtype...  ...     0.027106\n",
+              "28            0    So I left.\n",
+              "Name: 28, dtype: object  ...     0.027655\n",
+              "29  0    Working out is like a drug to me.\n",
+              "Name: 2...  ...     0.027364\n",
+              "30     0    I don’t do drugs.\n",
+              "Name: 30, dtype: object  ...     0.031796\n",
+              "31  0    YEAAHAHHHAHAHHAHAHAHAHAHA https://t.co/Ds...  ...     0.026393\n",
+              "32  0    My boss hates it when I shorten his name ...  ...     0.026159\n",
+              "33  0    Especially when his name is Steve.\n",
+              "Name: ...  ...     0.026179\n",
+              "34  0    You’ll have another one in half hour I go...  ...     0.026654\n",
+              "35  0    I met a girl the other night at a club wh...  ...     0.027030\n",
+              "36  0    When we got outside, she ran a 40 metre d...  ...     0.027144\n",
+              "37  0    Just got a new joke book\n",
+              "Name: 37, dtype:...  ...     0.027475\n",
+              "38            0    Here we go\n",
+              "Name: 38, dtype: object  ...     0.027472\n",
+              "39  0    Today I’m gonna be writing a lot of jokes...  ...     0.031542\n",
+              "40  0    Your life isn’t yours if you constantly c...  ...     0.027051\n",
+              "41  0    OIIIIIIIIIIIIIIIIIIIII 🔥🔥🔥🔥🔥 https://t.co...  ...     0.027495\n",
+              "\n",
+              "[42 rows x 4 columns]"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 106
+        }
+      ]
+    }
+  ]
+}
