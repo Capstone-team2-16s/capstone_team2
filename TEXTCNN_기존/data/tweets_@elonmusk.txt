@@ -1,0 +1,249 @@
+Yeah
+At least success is in the set of all possible outcomes this time!
+Diess is doing his best to move in the right direction, but he’s in a tough position with so many constituencies to please.
+No way to make everyone happy.
+Good grief! SpaceX is getting zero money for this.
+Starship is designed to carry people & cargo around Earth (also to moon & Mars).
+Vast majority of use will be civilian.
+It’s just like an airline in space.
+All airlines sometimes carry military cargo, but ~99% is civilian.
+With FSD, we got stuck in a lot of local maximums, which wasn’t clear until we hit the ceiling.
+This time, it’s right.
+Thank you, much more accurate haha
+Sheer magnitude of the entire production system is hard to appreciate.
+Almost every element of production is >75% automated.
+Only wire harnesses & general assembly, which are <10% of production costs, are primarily manual.
+Will release order configurator probably in Jan
+Limited FSD beta releasing on Tuesday next week, as promised. 
+The SoC’s sync with each other 20 to 30 times/sec, exchanging output of NNs that should be in harmony, like a symphony, so it’s fairly obvious when one is discordant
+Tesla FSD computer’s dual SoCs function like twin engines on planes
+they each run different neural nets, so we do get full use of 144 TOPS, but there are enough nets running on each to allow the car to drive to safety if one SoC (or engine in this analogy) fails.
+Accurate analysis.
+Quite a few ego/intelligence>>1 people in your comment thread haha.
+Neither MobilEye nor Nvidia, which are certainly good companies, could meet any of our capability, schedule, cost or power requirements.
+!
+Glad Jen is safe!
+Wow
+Uh ok, here we go …
+I don’t think this is accurate
+Yeah, there are literally >1000% more cameras than 10 years ago, but still zero clear photos
+Even if half that amount, it’s still a big deal!
+🤣🤣
+Definitely
+Exactly.
+He plays the “poor inventor” card, but was rich all along & invented nothing (as far as I know).
+I went down to zero cash or sellable assets in 2008/2009, had no house & had to borrow money from friends to pay rent.
+There are sketchy edits to Tesla wiki that whitewash Eberhard’s problems/glorify his role. Pretty odd… LINK 
+When Eberhard was fired from the Tesla CEO role in mid 2007 for providing false information to me & the board, no one left with him.
+That says it all.
+Interesting
+Probably
+I have that exact art on the wall of the place I stay in Boca Chica!
+Yes, failure to protect nursing homes was a major mistake (happened in most countries).
+Herd immunity for vast majority of people & quarantine vulnerable was right though imo.
+Sweden was right
+There are sensitive elements, but they’re on the inside.
+Also, a good telephoto lens will be able to capture what I’ve posted.
+And yeah, anyone who can reverse engineer what I’ve posted doesn’t need to reverse engineer!
+Great work by SpaceX valve engineering & production!
+Our tiles are mechanically attached
+It might be used in some areas.
+ITAR laws prevent us from being too specific about solutions.
+Tiles will be on hot side of flaps too.
+A very tough problem is sealing the moving flap to body joint without melting or shredding the seal.
+Compilers need to improve imo.
+Most type, pointer (or other memory) problems can be detected at compile time or disambiguated by asking the user.
+I’m proud to say that that nose is pointier than it needs to be haha
+Norway leads the world
+Passed cryo proof
+👍
+Yeah, it’s not a contest.
+Advanced casting crushes best-case 3D printing, but casting doesn’t work well for complex enclosed volumes & high strength or high temp alloys.
+Great pics!
+Maybe this should be the flag of Mars
+Additive manufacturing of parts is still far too costly for cars, but can rapidly create tooling to accelerate pace of innovation.
+It’s already sensible for rocket engine parts.
+To the best of our knowledge, SpaceX is 2 or 3 years ahead of other companies in use of additive.
+Pretty much, but I think it may end on a high note
+Meant to say that it should be fixed in the latest wide release.
+Won’t need to wait for FSD.
+It should be
+Exactly.
+We barked up that tree for way too long (sigh).
+Gives a false sense of victory being close — a tantalizing local maximum — but reality is just too messy & weird.
+Our new system is capable of driving in locations we never seen even once.
+Yes, we will play sexy snake jazz 🤣
+Yes
+Yeah, provided we do our metal gear snake autocoupler
+Waymo is impressive, but a highly specialized solution.
+The Tesla approach is a general solution.
+The latest build is capable of zero intervention drives.
+Will release limited beta in a few weeks.
+Yeah, we could put in a setting allowing it to drop as low as 5%
+Great render.
+Note, there will need to be an arm that lifts booster to launch stand & ship to booster.
+Mimecraft
+Yes
+Autopilot team is making great progress.
+Reality sure is complicated!
+Aspiring to have no flame diverter in Boca, but this could turn out to be a mistake
+We do have giant steel balls haha
+We just completed a financing round, but will let you know when there is another one
+I definitely need to try these tasty cakes & pastries on my next visit!
+@MarcusHouseGame @brendan2908 @BocaChicaGal @NASASpaceflight Mass ratio. Liquid oxygen is much denser than liquid m… LINK 
+Had the most amazing kebab ever just outside of Tacheles.
+Too bad that place got torn down.
+It was awesome.
+You’re most welcome!
+High bay should be finished (except for the giant gantry crane) within a few weeks.
+Super Heavy stacking should begin around then.
+That looks tasty!
+The crash absorption rails can be cut off &amp; replaced with a bolted part for collision repair
+Sandy Munro understands engineering
+That would be like licensing Battlestar Galactica.
+Actually building continuously evolving gargantuan factories is the hard part.
+Lots of people who worked at Tesla Gigafactories now work at competitors, but none of those companies have made one.
+Yes, the Gigafactory is the hardest &amp; most critical product
+Battery pack will be a bonded structure with cells providing shear transfer between steel upper & lower face sheets, eliminating most of the center body parts while providing better torsional rigidity & improved polar moment or inertia.
+This is a *major* breakthrough.
+But now we understand production much better.
+It will be our primary competitive advantage long-term.
+Even GM &amp; Chrysler went bankrupt in 2009.
+Ford and Tesla are the only US car companies that have avoided bankruptcy.
+The Model 3 production ramp was sheer agony for two years, but that was do or die for Tesla.
+No US car company has reached high volume production with sustained free cash flow in ~100 years.
+Hundreds of car startups all died or were absorbed for peanuts by big three.
+Bringing a new product to volume production is 1% inspiration &amp; 99% perspiration.
+You do still need that critical seed of inspiration, but it’s fun & takes ~100 people.
+Production takes >10,000 people & hurts like hell until the gigantic cybernetic collective runs smoothly.
+Marginal cost of Starship mass to orbit should be well under $100/kg.
+Fully burdened cost depends on flight rate.
+Prototypes are a piece of cake, but high volume production of a new technology is extremely hard.
+Takes much longer than people think to climb the production S-curve.
+I can’t emphasize enough that production is by *far* the hard part.
+We do expect to make heavy use of LFP for medium range cars &amp; stationary storage
+Berlin will use 4680 cell with structural battery pack & front & rear single piece castings.
+Also, a new paint system.
+Lot of new technology will happen in Berlin, which means significant production risk.
+Fremont & Shanghai will transition in ~2 years when new tech is proven.
+They are
+I do so wish that more companies would put down their spreadsheets for a moment and focus on making products that move your heart
+7 bar absolute, which is fine for flight.
+This was a proof test, rather than a burst test.
+We’ll hopefully fix the leak today & retest.
+Cryo pressure test succeeded, but a small leak opened up near the engine mounts, possibly due to differential shrinking
+One of the best shots ever!
+Much sooner
+Great photo!
+It will soon
+Once these satellites reach their target position, we will be able to roll out a fairly wide public beta in northern US & hopefully southern Canada.
+Other countries to follow as soon as we receive regulatory approval.
+We’re not seeing notable differences yet.
+I think the boosters could probably do 100+ reflights.
+Some of the (small) composite helium tanks would need to be replaced.
+Maybe turbopump hot sections.
+Roughly a week or two turnaround is all that’s needed to meet max launch demand.
+Starship Super Heavy is designed for reflight in less than an hour.
+Ahem, yes, it was the 3rd flight of this booster & 3rd flight for active half of fairing.
+Aiming for 10+ flights of booster & fairing by end of next year.
+4th flight &amp; landing for this booster
+5 minutes from launch.
+Looks good so far.
+So crazy to subsidize pollution!
+This is not good for people, especially in dense cities with heavy traffic, where your air intake is jammed up against another car’s exhaust pipe.
+It’s a step in the right direction, but they should really aim for full reusability by 2026.
+Larger rocket would also make sense for literal economies of scale.
+Goal should be to minimize cost per useful ton to orbit or it will at best serve a niche market.
+Turn volume to 11 &amp; play Powerglide in your Tesla 
+FSD will solve these issues
+Music volume on a Tesla goes to 11, because it’s louder than 10
+One of my favorite writers.
+Foundation is tough to make into a movie, but has outstanding potential.
+💯
+Rewatched Young Frankenstein this weekend.
+Still awesome. Ovaltine?
+The remake has the potential to be great.
+I kinda liked the original tbh, but it’s possible to take it up a level.
+Hollywood should just start with the sequel &amp; skip the original, because financials
+This article is wildly incorrect about lithium battery costs by a factor of 5 or more presently &amp; 10X long-term
+Pretty wild, considering that Exxon was the most valuable company in the word when we went public 10 years ago
+New SpaceX droneship will be called “A Shortfall of Gravitas”
+Nothing can escape gravity, not even black holes (and they really tried!)
+Would be cool to put yourself in the mind of the car while it’s driving
+Coming soon
+Call of Booty, great game
+Vector-space bird’s eye view coming with FSD
+Unexpected pressure rise in the turbomachinery gas generator
+All of that and more.
+We’re doing a broad review of launch site, propulsion, structures, avionics, range & regulatory constraints this weekend.
+I will also be at the Cape next week to review hardware in person.
+Exactly
+We will need to make a lot of improvements to have a chance of completing 48 launches next year!
+I agree with Lex
+Glad you’re ok!
+Haha
+Thanks for waiting!
+Next year for sure
+Oh yeah, Starship update coming in about 3 weeks.
+The design has coalesced.
+What is presented will actually be what flies to orbit as V1.0 with almost no changes.
+High frequency lasers are the way to go for sure
+Great
+Brownsville is quite far south, so probably 3 months or so for good connectivity — needs several more Starlink launches.
+I’m using it at the little house I rent in the area.
+Definitely not good there yet.
+Average latency will improve as more satellites launch (directly above you more frequently) & more ground stations are deployed.
+As we’re able to put more ground stations on roofs of server centers, legacy Internet latency will be zero.
+Very soon for higher latitudes like Seattle
+Yes, Starlink is designed to enable competitive gaming
+Probably 5 or 6 with an optimized tanker, although filling up the ship in orbit isn’t required for Mars, so 4 is possible
+Yeah
+Great letter!
+It will be increasingly difficult to see Starlink satellites, as we’re actively working with the astronomer community to ensure that even the most sensitive telescopes are fine & scientific progress is not impeded.
+💰💩🤣
+Glad to hear your Mom is ok
+Good to see.
+Inspiring for future of space!
+The new heat pump in Model Y is what really makes the difference in cold weather
+Yes, coming soon
+Great render!
+The circumferential welds & skin panels will be much smoother in future builds.
+That’s very hard to do.
+Weld esthetics will improve greatly in upcoming Starships
+Haha true.
+Why do showers have such a wide range!?
+!!
+Yes
+Light is not as fast as you’d think
+Maybe we used too many magenta spotlights
+Having a low center of gravity makes a world of difference to safety
+We will probably IPO Starlink, but only several years in the future when revenue growth is smooth & predictable.
+Public market does *not* like erratic cash flow haha.
+I’m a huge fan of small retail investors.
+Will make sure they get top priority.
+You can hold me to it.
+Fate loooves irony haha
+True
+Thanks Tesla Team for great work on deliveries!
+For new owners, we super appreciate accommodating us on delivery timing!
+Definitely one of our toughest quarters in global logistics.
+Starship SN8 with rear body flaps
+Nosecone & front flaps next week.
+SN9 next month.
+First flight is to 15km or ~50,000 ft
+Centaur with a bow obviously
+What can’t we predict?
+Only thing beyond ludicrous is plaid
+Haha
+Cybertruck, ATV, Roadster & Semi
+C A R S
+Probably
+Haha
+Important note about Tesla Battery Day unveil tomorrow.
+This affects long-term production, especially Semi, Cybertruck & Roadster, but what we announce will not reach serious high-volume production until 2022.
+We intend to increase, not reduce battery cell purchases from Panasonic, LG & CATL (possibly other partners too).
+However, even with our cell suppliers going at maximum speed, we still foresee significant shortages in 2022 & beyond unless we also take action ourselves.
+The extreme difficulty of scaling production of new technology is not well understood.
+It’s 1000% to 10,000% harder than making a few prototypes.
+The machine that makes the machine is vastly harder than the machine itself.
+
