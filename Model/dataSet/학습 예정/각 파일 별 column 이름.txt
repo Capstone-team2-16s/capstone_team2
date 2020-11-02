@@ -1,0 +1,8 @@
+train_Emoji 컬럼 순서
+DATASET_COLUMNS = ["target", "sentiment score", "unicode", "text"]
+
+train_Emoji-6열 컬럼 순서
+DATASET_COLUMNS = ["target", "ids", "date", "flag", "user", "text"]
+
+train2 컬럼 순서
+DATASET_COLUMNS = ["target", "textID", "selected text", "text"]
