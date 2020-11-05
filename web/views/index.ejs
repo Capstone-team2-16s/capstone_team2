@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <%- include ("./common/header") %>
+
+    <link href="src/css/style.css" rel="stylesheet">
+    <link href="src/css/mypage.css" rel="stylesheet">
+    <link href="src/css/index.css" rel="stylesheet">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.min.js"></script>
+    
+
+    <script>
+        $(document).ready(function(){
+          // $('.slider').bxSlider();
+        });
+      </script>
+    <script>
+        $(function(){
+            $.ajax({
+                url:'/data',
+                method:'get',
+                dataType:'json',
+                success:function(res){
+                    var name=[];
+                    var account = res.account;
+                    for(var i=0;i<res.length;i++){
+                        $('.media-list').append(
+
+                        `<div class="col-sm-6 col-md-3">
+                            <div class="media-left">
+                                <a href="#">
+                                <img class="media-object" width="60px" height="60px" src="${res[i].image}" alt="personThumnail">
+                                </a>
+                            </div>
+                            <div class="media-body">
+                                <div>
+                                    <a href="#"><p class="body-top header-h3" id="1">${res[i].name}</p>
+                                    </a>
+                                </div>
+                                <p>@${res[i].account}</p>
+                                <p>${res[i].job}</p>
+                            </div>
+                        </div>`
+
+
+                        )
+                    }
+
+                    console.log(res);
+                },error:function(err){
+                    console.log("/getData Err",err)
+                }
+            });
+        });
+    </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+    <div id="wrap">
+        <!-- 상단 navbar -->
+        <header>
+            <%- include ("./common/navbar") %>
+        </header>
+        <div>
+            <div class="content-header"><h2>CTA(Celeb's Tweet Analysis)</h2></div>
+            
+            <p>Please write a description here</br>
+                Check out the results of people you are interesed in</p>
+        </div>
+    </div>
+
+    <!------------------- 본문 ------------------->
+
+        <div id="content" style="margin-top:-20px">
+                <p class="text-center h5">SAMPLE RESULT SCREEN</p>
+                <img src="src/img/res.JPG"  width="390px"/>
+        </div>
+
+    <div class="rectangle">
+        <div id="wrap" style="margin-top:80px">
+            <div id="snb">
+                <!-- <div class="content-header text-center">
+                    <h3>회원정보변경</h3>
+                </div> -->
+                    <div class="dl">
+                        <h5 class="h5">Enter the name of people you're interested in</h5>
+                    </div>
+                    <!------------------- 서치폼 ------------------->
+                    <!-- style="border:1px solid aqua" -->
+                    <div class="dl floating">
+                        <form class="join-input" method="get" action="search">
+                            <div class="searchForm2">
+                                <input type="text" class="search" name="searchKey" placeholder="Enter the name">
+                                <button type="submit" class="btn">
+                                    <img src="src/img/search_index.svg"/>
+                                </button>
+                            </div>
+                        </form>
+                     </div>
+                     <div>
+                        <button type="submit" class="btn btn2" style="background: rgb(138, 133, 241);">SUBMIT</button>
+                    </div>
+                    <div class="dl" style="margin-top:130px">
+                        <h5 class="h5">* the person you were looking for isn't here?</br>
+                            then you can choose person from below! </h5>
+                    </div>
+            </div>
+        </div>
+    </div> <!-- rectangle 끝-->
+
+
+    <!------------------- 프로필 ------------------->
+    <div id="wrap">
+        <div id="profile">
+            <div class = "padding-top padding-bottom">
+                <h3>PEOPLE</h3>
+                <h5 class="h5"> who you can analyze NOW</h5>
+            </div>
+            <div id="card">
+                <div class="row">
+                    <div class="media-list">
+
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</body>
+</html>
