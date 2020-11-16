@@ -106,20 +106,20 @@ class preproc_Sentence:
     def __init__(self):
         pass
 
-    def readTweets(request_id):
-        id = request_id
-        file_name = 'twitter_'
-        fileformat = '.txt'
-        filename = file_name + id + fileformat
+    # def readTweets(request_id):
+    #     id = request_id
+    #     file_name = 'twitter_'
+    #     fileformat = '.txt'
+    #     filename = file_name + id + fileformat
 
-        data_path ='../data/'
+    #     data_path ='../data/'
 
-        # 분석 요청된 유명인 트윗 파일 open
-        with open(data_path + filename, 'r', encoding = "utf-8") as f:
-            tweets = pd.read_csv(f, sep = "\n", names = ['data'])
-        f.close()
+    #     # 분석 요청된 유명인 트윗 파일 open
+    #     with open(data_path + filename, 'r', encoding = "utf-8") as f:
+    #         tweets = pd.read_csv(f, sep = "\n", names = ['data'])
+    #     f.close()
 
-        return tweets
+    #     return tweets
 
     def preprocTweets(tweets):        
         # URL 변환
@@ -147,21 +147,23 @@ class preproc_Word:
     def __init__(self):
         pass
 
-    def readTweet(request_id):
-        id = request_id
-        file_name = 'twitter_'
-        fileformat = '.txt'
-        filename = file_name + id + fileformat
+    # def readTweet(request_id):
+    #     id = request_id
+    #     file_name = 'twitter_'
+    #     fileformat = '.txt'
+    #     filename = file_name + id + fileformat
 
-        data_path = '../data/'
+    #     data_path = '../data/'
 
-        # 분석 요청된 유명인 트윗 파일 open
-        with open(data_path + filename, 'r', encoding = "utf-8") as file:
-            tweet = file.read()
+    #     # 분석 요청된 유명인 트윗 파일 open
+    #     with open(data_path + filename, 'r', encoding = "utf-8") as file:
+    #         tweet = file.read()
        
-        return tweet
+    #     return tweet
 
-    def preprocWordTweet(tweet):
+    def preprocWordTweet(tweets):
+        #dataframe to string
+        tweet = str(tweets['data'])
         # 소문자 변환
         tweet = tweet.lower()
         # 구두점 제거
@@ -196,9 +198,8 @@ class word_COUNT:
     def __init__(self):
         pass
 
-    def countWord(request_id):
-        tweet = preproc_Word.readTweet(request_id)
-        tweet = preproc_Word.preprocWordTweet(tweet)
+    def countWord(tweets):
+        tweet = preproc_Word.preprocWordTweet(tweets)
         res = preproc_Word.tokenizeWord(tweet)
         words = preproc_Word.stemmerWord(res)
         words_top = Counter(words).most_common(n=5)
