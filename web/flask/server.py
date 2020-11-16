@@ -1,8 +1,13 @@
+import getFile
+import modelResult
+
+res = getFile.getFileFromDB("sample2.txt")
+print(res)
+
 from flask import Flask, jsonify, render_template, request
-from modelResult import resDict
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
-from wordcloudEx import showing
+from getFile import MongoGridFS
 
 app = Flask(__name__)
 CORS(app)
@@ -12,28 +17,18 @@ CORS(app)
 def serverTest():
     return "flask server"
 
-#node - flask
-@app.route('/test',methods=['GET','POST'])
-def test00():
-    data = request.args.get('name')
-    data2 = request.args.get('email')
-    if request.method == 'POST':
-        #data = request.data
-        test = {"data":"testdata"}
-        print(data)
-        print("data type :",type(data))
-        return data
-    elif request.method=='GET':
-        return {"data1":data,"data2":data2}
-    else:
-        return "hello"
-
-@app.route('/result')
+@app.route('/result',methods=['GET'])
 def resultTest():
-    #show wordcloud
-    #showing
-    return resDict
-
+    #get name or id from node server
+    if(request.method=='GET'):
+        name = request.args.get('name')
+        file_name = 'twitter_'
+        fileformat = '.txt'
+        filename = file_name + name + fileformat
+        filename = name
+        tweets = getFile.getFileFromDB(filename)
+        res = modelResult.analysisResult(tweets)
+    return res
 
 #running server
 app.config['JSON_AS_ASCII'] = False
