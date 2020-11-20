@@ -68,12 +68,13 @@ SENTIMENT_THRESHOLDS = (0.4, 0.7)
 
 #Learned Tokenizer import
 tk = Tokenizer(num_words=VOCAB_SIZE)
-with open('../wordIndex.json') as json_file:
+with open('../modelData/wordIndex.json') as json_file:
   word_index = json.load(json_file)
   tk.word_index = word_index
 
 #Load Model
-model = load_model('../text-CNN.h5')
+# model = load_model('../modelData/pruned_tCNN.h5')
+model = load_model('../modelData/pruned80_tCNN.h5')
 #decode function
 def decode_sentiment(score, include_neutral=True):
     if include_neutral:        
@@ -123,7 +124,7 @@ class preproc_Sentence:
 
     def preprocTweets(tweets):        
         # URL 변환
-        tweets['data'] = tweets['data'].replace(to_replace = "((www\.[^\s]+)|(https?://[^\s]+))", value = "URL ", regex = True)
+        tweets['data'] = tweets['data'].replace(to_replace = "((www\.[^\s]+)|(http?://[^\s]+)|(https?://[^\s]+))", value = "URL ", regex = True)
         # 소문자 변환
         tweets['preprocess'] = tweets['data'].str.lower()
         # @ 변환
@@ -132,7 +133,6 @@ class preproc_Sentence:
         tweets['preprocess'] = tweets['preprocess'].replace(to_replace = "#([^\s]+)", value = "HASHTAG", regex = True)
         # hashtag 변환
         tweets['preprocess'] = tweets['preprocess'].replace(to_replace = "([a-zA-Z0-9_.+-]@[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+)", value = "EMAIL", regex = True)
-       
         # Emoji 변환
         tweets_raw = tweets['preprocess']
 
@@ -166,10 +166,10 @@ class preproc_Word:
         tweet = str(tweets['data'])
         # 소문자 변환
         tweet = tweet.lower()
+        # URL 제거
+        tweet = re.sub('((www\.[^\s]+)|(http?://[^\s]+)|(https?://[^\s]+))', '', tweet)
         # 구두점 제거
         tweet = re.sub(r'[^\w\s]', '', tweet)
-        # URL 제거
-        tweet = re.sub('((www\.[^\s]+)|(https?://[^\s]+))', '', tweet)
         # 숫자 제거
         tweet = re.sub('\s[0-9]+', '', tweet)
         # 아이디 제거
