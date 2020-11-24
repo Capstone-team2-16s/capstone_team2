@@ -41,7 +41,6 @@ Am getting wildly different results from different labs, but most likely I have 
 My symptoms are that of a minor cold, which is no surprise, since a coronavirus is a type of cold.
 NPCs all the way up
 Ahem
-Unless you’re on DMT
 Laws of thermodynamics:
 1. You can’t win
 2. You can’t break even
@@ -63,13 +62,14 @@ General public doesn’t realize quite how much of medicine is subjective or out
 The number of PCR amplification cycles required to detect the virus is a rough indicator of your viral load.
 From what I can gather, you’re probably not infectious above 30 & you probably are below 25.
 Sound about right?
-This a great reference! Worth a read.
+This a great reference!
+Worth a read.
 Case closed
 Soon
 Fwiw, lab I just spoke to thinks below 30 is accurate, 30 to 40 gets dicey & above 40 is bs.
 Will talk to several more labs.
 There must be a graph of PCR amplification cycle vs false positive rate somewhere.
-Lab I just spoke to said cov2 PCR detection (N1 &amp; N3 genes) below 30 cycles is reliable &amp; above 40 cycles is not
+Lab I just spoke to said cov2 PCR detection (N1 &amp; N3 genes) below 30 cycles is reliable & above 40 cycles is not
 Note, this is not the spike protein.
 They don’t consider that reliable.
 ust spoke directly to a testing lab.
@@ -81,11 +81,9 @@ Possible explanation for the dramatic decline in cold & flu prevalence vs prior 
 If someone comes in with cold/flu symptoms & falsely tests positive for cov2, they will assume they have it, when in fact they simply have some other form of seasonal cold/flu.
 Moreover, lower the true prevalence, the higher the false positive number will be.
 This sounds obvious, but it could mean a very high false positive percentage if true prevalence is low.
-From https://t.co/42z7vRPB9c
 Sure is
 Would be great to hear from people who know a lot about the PCR testing industry.
 What’s the approximate false positive rate, all things considered, for cov2 PCR tests?
-Interesting
 Interesting
 What is the general population (no knowledge of symptoms) accuracy of a sars-cov2 PCR test & is it possible to generate a false positive if you simply run enough cycles?
 A good PCR test should identify if I have the cov2 spike proteins, although I have heard some low accuracy numbers for those too.
@@ -176,7 +174,6 @@ Faraday invented the electric motor, Tesla the (commutator-free, three-phase) AC
 Maxwell was amazing.
 Should have more recognition.
 Tesla Motors, Inc., was almost called Faraday, as it took until late 2004/2005 to buy the trademark from a guy who had had it since 1995.
-420 is ten times better than 42
 🤗
 Awaiting approval from Canadian authorities
 Recruiting ace engineers for Giga Berlin! Will interview in person tomorrow on site. Send resume to 25Guns@Tesla.com.
@@ -229,7 +226,6 @@ Lot can go wrong, but we’ll provide video, warts & all.
 You will see every frame that we do.
 This is what matters most
 We’ve tested a sub-scale version in a wind tunnel with active aero closing the loop for stability, so it will probably work at scale, but reality tends to bite you on the ass
-Lord of the …
 Yeah.
 Although, if it fails right at the end, some landing pad repair will be needed to fill in the crater.
 Minor
@@ -447,7 +443,11 @@ Definitely
 Exactly.
 He plays the “poor inventor” card, but was rich all along & invented nothing (as far as I know).
 I went down to zero cash or sellable assets in 2008/2009, had no house & had to borrow money from friends to pay rent.
-There are sketchy edits to Tesla wiki that whitewash Eberhard’s problems/glorify his role. Pretty odd… https://t.co/PPSorKWdI8
+There are sketchy edits to Tesla wiki that whitewash Eberhard’s problems/glorify his role.
+Pretty odd.
+I was interim CEO/co-CEO from July 2007.
+Michael Marks was co-CEO for ~Q4 2007 & Ze’ev Drori for Q1 to ~Q3 2008.
+After Q3 2008 financing round bust, no choice but to be CEO.
 When Eberhard was fired from the Tesla CEO role in mid 2007 for providing false information to me & the board, no one left with him.
 That says it all.
 Interesting
@@ -504,7 +504,8 @@ Aspiring to have no flame diverter in Boca, but this could turn out to be a mist
 We do have giant steel balls haha
 We just completed a financing round, but will let you know when there is another one
 I definitely need to try these tasty cakes & pastries on my next visit!
-@MarcusHouseGame @brendan2908 @BocaChicaGal @NASASpaceflight Mass ratio. Liquid oxygen is much denser than liquid m… https://t.co/GNhcI8rEh3
+Mass ratio.
+Liquid oxygen is much denser than liquid methane, even when the latter is cooled to just above its freezing point.
 Had the most amazing kebab ever just outside of Tacheles.
 Too bad that place got torn down.
 It was awesome.
@@ -650,7 +651,6 @@ What can’t we predict?
 Only thing beyond ludicrous is plaid
 Haha
 Cybertruck, ATV, Roadster & Semi
-C A R S
 Probably
 Haha
 Important note about Tesla Battery Day unveil tomorrow.
