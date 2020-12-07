@@ -1,0 +1,153 @@
+/* 프로필 이미지 */
+#figure {
+    width: 60px;
+    height: 60px; 
+    border-radius: 70%;
+    overflow: hidden;
+    vertical-align:middle;
+    display: inline-block;
+}
+.profile-image{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+#name{
+    display: inline-block; 
+    /* p태그(자식태그) 사이즈에 맞추기 */
+}
+
+
+
+/* 서치콘텐츠(snb) + 결과예시 콘텐츠(right-content) 배치 */
+/* 보라색 배경 */
+.rectangle { 
+    width: 100%;
+    position:relative; 
+    background: rgb(226, 224, 251);  
+    z-index: 0;
+}
+/* snb 크기에따라 달라지게 overflow를 auto로 줌 */
+.inside-wrap{
+    width: 1400px;
+    /* 중앙정렬 */
+    margin : 0 auto;
+    overflow: auto;
+}
+#snb{ 
+    width: 45%;
+    height: 100%;
+    float:left;
+    /* background: #f2f2f2;
+    border: 1px solid #ccc;
+    border-radius:10px; */
+    z-index: 1;
+}
+
+/* 결과 예시 보여주는 엘리먼트를 감싸주는 CSS 
+rectangle 엘리먼트에 종속하게 함
+=> snb 옆에 보여주기 위해
++inside_wrap하위에 두지않아도 되지만 의미상.. 안에다 둠
+*/
+#right-content{
+    width: 1400px;
+    height: auto; 
+    position: absolute; 
+    /* absolute position 기본은 relative 왼쪽위에 맞춰져서 left,top 비율 변경 */
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+}
+
+/* 결과 예시 보여주는 엘리먼트 CSS
+이미지 width 크기에 맞춰서 text정렬 중앙으로 줌
+*/
+.right-wrap{
+    margin-top:-20px; 
+    width:auto; 
+    height:auto; 
+    /* float을 right로 줌으로써 부모 right-content 의 오른쪽에 위치시키고 width도 부모 width->img width로 */
+    float:right; 
+}
+
+.top-content{
+    margin-top:30px;
+}
+.mid-content{
+    margin:20px 0;
+}
+.bottom-content{
+    margin-bottom:30px;
+}
+
+/* 서치바가 div로 안묶이는 문제때문에 */
+.floating{
+    overflow: auto;
+}
+
+.btn2{
+    margin-top: 30px;
+    width: 90%;
+    float: left;
+}
+.btn2:hover,
+.btn2:focus,
+.btn2.focus,
+.btn2:active {
+  color: #fff;
+  text-decoration: none;
+  border:0;
+  outline:0;
+}
+
+.padding-top{
+    margin-top:40px;
+}
+
+.padding-bottom{
+    margin-bottom:40px;
+}
+
+.header-h3{
+    font-size:1.3em;
+    font-weight: 800;
+    font-family: NEXON Lv1 Gothic OTF,sans-serif;
+}
+
+
+/* FONT */
+small-info{
+    font-size: 0.9em;
+    font-weight: 600;
+    opacity: 1;
+}
+h3{
+    font-family: S-CoreDream-5Medium,sans-serif;
+    color: rgb(69, 69, 80);
+    margin:10 0;
+}
+
+/* a 링크 */
+a {
+    color:rgb(69, 69, 80);
+    text-decoration: none;
+}
+
+.content{
+    display: flex;
+    justify-content: space-between;
+}
+.item{
+    border : 1px solid blue;
+    text-align: center;
+    width:20%;
+    height: auto;
+    line-height: 2em;
+  }
+
+.btn2{
+    margin:5% auto 2%;
+}

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%- include ("./common/header") %>
+
+        <link href="../src/css/style.css" rel="stylesheet">
+        <link href="../src/css/common.css" rel="stylesheet">
+        <link href="../src/css/result.css" rel="stylesheet">
+        <link href="../src/css/loading.css" rel="stylesheet">
+
+        <style>
+            #text{
+                margin:0;
+            }
+            body{
+                margin:0;
+                padding:0;
+                font-family: S-CoreDream-4Regular,sans-serif;
+            }
+            ul,ol{
+                margin-top: 0;
+                margin-bottom: 0;
+            }
+            smallheader{
+                font-size: 0.8em;
+                padding-left: 0.2em;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="wrap">
+            <header>
+                <%- include ("./common/navbar") %>
+            </header>
+            <div>
+                <div class="Large-header">
+                    <a href="/">
+                        <p>CTA <smaller>Celeb's Tweet Analysis</smaller></p>
+                    </a>
+                </div>
+                <p class="small-header top-content">트위터 감성 분석 결과</p>
+            </div>
+        </div>
+
+        <!-- 콘텐트 헤더 -->
+        <div class="rectangle">
+            <div class="inside-wrap">
+                <p id="key" visibility: hidden><%- targetInfo.account -%></p>
+                <!-- 프로필 들어갈 자리 -->
+                <div id="profile">
+                        <div id="figure">
+                            <img class="profile-image" src="<%- targetInfo.image -%>">
+                        </div>
+                        <div id="text" class="content-body">
+                            <p class="bold">Analysis Target | <%- targetInfo.name -%></p>
+                            <p>Job | <%- targetInfo.job -%></p>
+                            <p style="margin:0">Twitter Account | <%- targetInfo.account -%></p>
+                        </div>
+                        <div id="twitter-button" class="btn3">
+                                <button onClick="location.href='https://twitter.com/<%- targetInfo.account -%>'">Go Twitter Now</button>
+                        </div>
+                </div> <!-- 프로필 끝 -->
+            </div>
+        </div><!-- 콘텐트 헤더 끝 -->
+
+        <!-- 분석 결과 자리 -->
+        <div id="content">
+            <div class="result-wrap">
+                    <div class="content-header">
+                        <p id="lines">트위터 문장 감성 비율</p>
+                    </div>
+                    <div id="chart">
+                        <!-- 문장 비율 자리 -->
+                    </div>
+                    <!-- 문장 예시 자리 -->
+                    <div>
+                        <div class="content-small-header">POSITIVE</div>
+                        <div class="box pos"></div>
+                        <div id="pos" style="padding:10px 0px 30px 0px; color:rgb(69, 69, 80);"></div>
+
+                    </div>
+                    <div>
+                        <div class="content-small-header">NEGATIVE</div>
+                        <div class="box neg"></div>
+                        <div id="neg" style="padding:10px 0px 30px 0px; color:rgb(69, 69, 80);"></div>
+                    </div>
+                    <div>
+                        <div class="content-small-header">NEUTRAL</div>
+                        <div class="box neu"></div>
+                        <div id="neu" style="padding:10px 0px 30px 0px; color:rgb(69, 69, 80);"></div>
+                    </div>
+            </div>
+        <div class="result-wrap">
+            <div style="border-top: 1px solid rgb(180, 180, 187)"></div>
+            <div class="content-header2">
+                <p>Used Words in Twits</p>
+            </div>
+
+            <!-- Used Words -->
+            <div style="display:inline-flex">
+                <!-- word cloud -->
+                <div style="width: 100%; height: 500px;display: table-cell;">
+                    <div id="graph" style="display:inline-block"></div>
+                </div>
+                <!-- TOP 5 words -->
+                <div class="right-wrap"> 
+                    <div>
+                        <div class="content-small-header">TOP 5 WORDS</div>
+                        <div id="word-list">
+                            <div id="wordsTop" class="content top-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- word result wrap 끝 -->
+        
+        <!-- share result button -->
+        <div class="result-wrap" style="min-height: 200px;">
+            <!-- <button id="shareBtn" class="btn btn2" style="background: rgb(138, 133, 241);outline: none;">트위터 공유하기</button> -->
+            <p style="text-align: center; line-height: 2em;font-size:1.2em;margin-top:2em">프로그램 관련 제안 및 문의사항을 보내주세요.</br>
+                <a href="mailto:uknowsj@gmail.com"><strong>문의하기</strong></a>
+            </p>
+        </div>
+    </div> <!-- 콘텐트 끝 -->
+
+    <!-- Loading Spinner Wrapper-->
+    <div id="load" class="loader text-center">
+        <div class="loader-inner">
+            <!-- Animated Spinner -->
+            <div class="lds-roller">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            <!-- Spinner Description Text [For Demo Purpose]-->
+            <h4 class="text-uppercase font-weight-bold">Loading</h4>
+            <p class="font-italic text-muted">This loading window will be removed after few Seconds</p>
+        </div>
+    </div>
+
+
+
+    <!-- JQUERY libs -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+    <!-- Apexcharts libs -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="../src/js/chart.js"></script>
+
+    <!-- word cloud -->
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script src="https://rawgit.com/jasondavies/d3-cloud/master/build/d3.layout.cloud.js" type="text/JavaScript"></script>
+    <script src="../src/js/wordcloud.js"></script> <!-- 그래프 코드 -->
+
+    <!-- CORS -->
+    <script src="../src/js/jquery.ajax-cross-origin.min.js"></script>
+
+    <!-- Twitter Share -->
+    <!-- 개인정보 이슈로 인해 기능 삭제 
+    <script src="../src/js/twitter.js"></script> -->
+    
+    <!-- result page 전반적인 기능 : DB에서 찾은 account정보를 flask서버로 넘겨주고, 분석 결과를 json 형식으로 받아온다. -->
+    <script src="../src/js/result.js"></script>
+
+    </body>
+
+</html>

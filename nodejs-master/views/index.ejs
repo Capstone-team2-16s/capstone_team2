@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <%- include ("./common/header") %>
+    
+    <!-- basic css -->
+    <link href="../src/css/style.css" rel="stylesheet">
+    <link href="../src/css/common.css" rel="stylesheet">
+    <link href="../src/css/index.css" rel="stylesheet">
+    <!--  scroll css -->
+    <link href="../src/css/demo.css" rel="stylesheet">
+
+    
+    <!-- autoComplete -->
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> 
+    
+    <!-- load targetInfo data -->
+    <script src="../src/js/getTargetInfo.js"></script> 
+    <script src="../src/js/index.js"></script>
+    
+    <style>
+        #card{
+            width: 900px;
+        }
+        .sub{
+            font-size:2.6em;
+        }
+        #contact{
+            overflow: hidden;
+        }
+        ul,li{
+            padding-left:0px;
+            line-height: 2em;
+            list-style: none;
+        }
+        ul > .content-small-header{
+            font-family:S-CoreDream-5Medium,sans-serif;
+        }
+        .top-content{
+            margin-top:40px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="wrap">
+        <!-- 상단 navbar -->
+        <header>
+            <%- include ("./common/navbar") %>
+        </header>
+        <div>
+            <div class="Large-header">
+                <a href="/">
+                    <p>CTA <smaller>Celeb's Tweet Analysis</smaller></p>
+                </a>
+            </div>
+            <div class="content-body">
+                <p>평소 관심 있는 셀럽이 있으신가요?</br>
+                    CTA는 트윗 내용 분석을 통해 셀럽의 트윗 내용을 <color2>긍정/중립/부정</color2> 3가지 감성으로 나누어 보여줍니다.</br>
+                    지금 바로 트윗 감성 분석을 진행해 보세요!</p>
+            </div>
+        </div>
+    </div>
+
+    <!------------------- 본문 ------------------->
+
+
+    <div class="rectangle">
+        <div class="inside-wrap">
+            <!-- 왼쪽 콘텐츠 -->
+            <div id="snb"> 
+                <div class="top-content">
+                    <h5 class="content-body">셀럽의 이름을 검색해 보세요</h5>
+                </div>
+                <!------------------- 서치폼 ------------------->
+                <!-- style="border:1px solid aqua" -->
+                <div class="mid-content floating">
+                    <!-- action="result" ->ajax로 -->
+                    <form id="searchForm" class="join-input" method="get" action="result">
+                        <div class="searchForm2">
+                            <input id="completeBar" type="text" class="search" name="searchKey" placeholder="Enter the name">
+                            <button class="btn">
+                                <!-- button이 아닌 img id값으로 버튼 눌렀는지 확인함(isClick) -->
+                                <img id="submitBtn1" src="./src/img/search_index.svg"/> 
+                            </button>
+                        </div>
+                        <button id="submitBtn2" class="btn btn2" style="background: rgb(138, 133, 241);">SUBMIT</button>
+                    </form>
+                    </div>
+
+                <div class="bottom-content">
+                    <svg class="middle-position"   width="1.2em" height="1.2em" viewBox="0 0 16 16" class="bi bi-info-circle-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path style="fill:rgb(138, 133, 241); fill-rule:evenodd;" d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412l-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+                        </svg>
+                    <div class="content-body middle-position"> &nbsp; 찾고 있는 셀럽이 보이지 않나요?</br></div>
+                    <div>
+                        <small-info>CTA는 현재 베타버전으로 일부 기능 제한이 있습니다.</br>
+                            아래 리스트에서 분석대상을 선택해 주세요. </small-info>
+                    </div>
+                </div>
+            </div>
+            <!-- 오른쪽 콘텐츠 -->
+            <div id="right-content">
+                <div class="right-wrap">
+                    <p class="text-center" style="color:rgb(69, 69, 80)"><strong>SAMPLE RESULT SCREEN</strong></p>
+                    <img src="../src/img/res.JPG"  width="390px"/>
+                </div>
+            </div>
+        </div> <!-- inside wrap 끝-->
+    </div> <!-- rectangle 끝-->
+
+
+    <!------------------- 프로필 ------------------->
+    <div id="wrap">
+        <div id="profile">
+            <div class = "top-content">
+                <p class="small-header">현재 분석 가능한 인물</p>
+                <p class="basic-font bottom-content">클릭하여 분석을 시작해 보세요!</p>
+            </div>
+            <div id="card" class="top-content">
+                <div class="row">
+                    <div class="media-list">
+
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    <!------------------- ABOUT ------------------->
+    <div id="wrap">
+    <!-- 헤더 -->
+        <div></br></br></br></div>
+        <div id="about" class="Large-header sub">
+            <p data-scroll="toggle(.fromTopIn, .fromTopOut)">ABOUT</p>
+        </div>
+        
+        
+        <div id="content" data-scroll="toggle(.fromBottomIn, .fromBottomOut)">
+            <h3>프로그램 소개</h3>
+            <ul>
+                <p>CTA(Celeb's Tweet Analysis)는 사용자의 트윗의 문장을 <color2>긍정/부정/중립</color2>3가지의 감성으로 분석해주며, 트윗에서 자주 사용하는 <color2>단어 5개</color2>를 제공합니다.</br>
+                    기존의 딥러닝 모델에 pruning을 통해 정확도를 높인 후, model의 convolution 연산에 <color2>NZB Indexing</color2>을 적용하여 분석 속도를 높였습니다.</p>
+            </ul>
+            <h3 class="top-content">분석 진행과정</h3>
+                <ul>
+                    <li class="content-small-header">분석 데이터</li>
+                    <p>※ 트위터 무료 API 한계로 데이터를 직접 수집해야해 인원을 특정지었습니다. ※</p>
+                    <p> 특정 인물 50명의 영어 트윗을 데이터로 사용합니다. </p>
+                    <p>20년 09월 22일 이후의 트윗 데이터를 매주 화요일마다 직접 수집합니다.</p>
+                    <li class="content-small-header">분석 과정</li>
+                    <p>※ 분석은 최대 700문장이 가능하며, 분석 시간은 30초 이하 입니다. ※</p>
+                    <p>※ 자주 사용하는 단어는 어간 추출로 인해 잘린 단어가 제공될 수 있습니다. ※</p>
+                    <p>배포한 모델을 통해 각각의 문장을 0 - 1 사이의 수치로 예측을 통해 3가지 감성으로 분류합니다.</p>
+                    <p>전체 트윗에서 자주 사용하는 단어 5개 제공합니다.</p>
+                    <li class="content-small-header">정확도</li>
+                    <p>모델의 정확도는 78.89% 입니다.</p>
+                </ul>
+            <h3 class="top-content">분석 결과 안내</h3>
+            <ul>
+                <li>분석 인물의 프로필 및 트윗 바로가기</li>
+                <li>트윗 문장의 감성 비율 (긍정 / 부정 / 중립)</li>
+                <li>긍정 / 부정 / 중립 문장 예시 (분석 결과 정확도 높은 순으로 2문장 제시)</li>
+                <li>자주 쓰는 단어 최대 5개</li>
+            </ul>
+        </div>
+    
+    </div>
+
+
+    <!------------------- CONTACT ------------------->
+    <div></br></br></br></br></br></div>
+    
+    <div class="rectangle"> 
+        <div class="inside-wrap">
+        <!-- 헤더 -->
+        <div id="contact"> 
+            <div class="Large-header sub top-content">
+                <div data-scroll="toggle(.fromTopIn, .fromTopOut)">CONTACT</div>
+            </div>
+        
+            <div  data-scroll="toggle(.fromBottomIn, .fromBottomOut)">
+                <div class="content-body">
+                    <h3>개발자 안내</h3>
+                    <p>세종대 캡스톤 디자인 "Team 16s" </p>
+                </div>
+                <div class="content-body bottom-content">
+                    <h3>문의사항</h3>
+                    <p>
+                        프로그램 관련 제안 및 문의사항을 보내주세요.</br>
+                        아래 연락처로 연락주시면 확인 후 빠르게 연락 드리겠습니다.</br>
+                        E-mail | uknowsj@gmail.com
+                    </p>                
+                </div>
+            </div>
+            
+        </div>
+        </div><!-- wrap 끝 -->
+    </div>
+    
+</body>
+
+    <!-- scroll -->
+    <script src="../src/js/ScrollTrigger.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+            var trigger = new ScrollTrigger({
+                addHeight: true,
+                once: true,
+                yOffset:2760,
+            });
+        }); //스크롤. 나중에 scrollTriger.js 수정한 거 더 좋은 방법 찾아보기
+
+        $(function(done){
+            data = getTargetInfo.getData();
+            showProfile(data); 
+            autoKey(data); //return했을 때 test값만 전달되고 변화된 값은 전달이 안됨.
+            var selectedTarget;
+            $("#completeBar").on("change",function(){
+                selectedTarget = $("#completeBar").val(); 
+            });
+            isClick(data); //클릭했을 때 재확인 + 분석가능한 인물인지 + 프로필 클릭포함
+        });
+    </script>
+</html>
